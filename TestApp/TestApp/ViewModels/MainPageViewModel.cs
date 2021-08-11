@@ -80,8 +80,11 @@ namespace TestApp.ViewModels
 
             _dialogService = dialogService;
             Title = "Main Page";
-            ConnectIP = "192.168.40.201";
+
+            ConnectIP = "192.168.40.201"; // 預設值 
+
             HostButtonText = "Start Listener";
+
             // 取得host ip
             try
             {
@@ -120,6 +123,7 @@ namespace TestApp.ViewModels
         {
             if (!_listening)
             {
+                // 開啟
                 try
                 {
                     _listener = new TcpSocketListener();
@@ -133,7 +137,7 @@ namespace TestApp.ViewModels
                         }
                     };
 
-
+                    
                     await _listener.StartListeningAsync(ListenPort, Global.DefaultCommsInterface);
                     _canceller = new CancellationTokenSource();
                     _listening = true;
@@ -146,6 +150,7 @@ namespace TestApp.ViewModels
             }
             else
             {
+                // 關閉
                 try
                 {
                     await _listener.StopListeningAsync();
@@ -195,20 +200,6 @@ namespace TestApp.ViewModels
             {
                 await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
             }
-        }
-
-
-
-        public byte[] AddByteToArray(byte[] bArray, byte newByte)
-        {
-            var len = bArray == null ? 0 : bArray.Length;
-
-            byte[] newArray = new byte[len + 1];
-
-            bArray.CopyTo(newArray, 1);
-
-            newArray[0] = newByte;
-            return newArray;
         }
     }
 }
