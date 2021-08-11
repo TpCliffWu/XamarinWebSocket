@@ -1,5 +1,6 @@
 using Prism;
 using Prism.Ioc;
+using Sockets.Plugin;
 using TestApp.ViewModels;
 using TestApp.Views;
 using Xamarin.Essentials.Implementation;
@@ -28,6 +29,11 @@ namespace TestApp
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
+        }
+
+        public static class Global
+        {
+            public static CommsInterface DefaultCommsInterface { get; set; }
         }
     }
 }

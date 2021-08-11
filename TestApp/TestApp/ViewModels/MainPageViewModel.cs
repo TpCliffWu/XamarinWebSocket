@@ -2,10 +2,19 @@
 using Prism.Navigation;
 using Prism.Services;
 using Sockets.Plugin;
+using Sockets.Plugin.Abstractions;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.Forms;
+using static TestApp.App;
 
 namespace TestApp.ViewModels
 {
@@ -16,7 +25,17 @@ namespace TestApp.ViewModels
         IPageDialogService _dialogService;
 
 
+
+        public List<ITcpSocketClient> _clients = new List<ITcpSocketClient>();
+        public TcpSocketListener _listener;
+        public TcpSocketClient _client;
+        public CancellationTokenSource _canceller;
+
+
         public int ListenPort = 11000;
+        private bool _listening;
+
+
 
         private string hostIP;
         public string HostIP
@@ -33,6 +52,26 @@ namespace TestApp.ViewModels
             set { SetProperty(ref connectIP, value); }
         }
 
+        private string hostButtonText;
+        public string HostButtonText
+        {
+            get { return hostButtonText; }
+            set { SetProperty(ref hostButtonText, value); }
+        }
+
+        private string _sendMessage;
+        public string SendMessage
+        {
+            get { return _sendMessage; }
+            set { SetProperty(ref _sendMessage, value); }
+        }
+
+        private string _receiveMessage;
+        public string ReceiveMessage
+        {
+            get { return _receiveMessage; }
+            set { SetProperty(ref _receiveMessage, value); }
+        }
 
 
         public MainPageViewModel(INavigationService navigationService, IPageDialogService dialogService)
@@ -42,6 +81,8 @@ namespace TestApp.ViewModels
             _dialogService = dialogService;
             Title = "Main Page";
             ConnectIP = "192.168.40.201";
+            HostButtonText = "Start Listener";
+            // 取得host ip
             try
             {
                 foreach (IPAddress adress in Dns.GetHostAddresses(Dns.GetHostName()))
@@ -56,68 +97,107 @@ namespace TestApp.ViewModels
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                Debug.WriteLine($"{ex}");
             }
 
             StartCommand = new DelegateCommand(async () =>
             {
-                var listener = new TcpSocketListener();
-
-                // when we get connections, read byte-by-byte from the socket's read stream
-                listener.ConnectionReceived += async (sender, args) =>
-                {
-                    var client = args.SocketClient;
-
-                    var bytesRead = -1;
-                    var buf = new byte[1];
-
-                    while (bytesRead != 0)
-                    {
-                        bytesRead = await args.SocketClient.ReadStream.ReadAsync(buf, 0, 1);
-                        if (bytesRead > 0)
-                        {
-                            Debug.Write(buf[0]);
-                        }
-                    }
-                };
-
-                // bind to the listen port across all interfaces
-                await listener.StartListeningAsync(ListenPort);
+                CreateListener();
             });
 
             SendCommand = new DelegateCommand(async () =>
             {
-                var address = ConnectIP;
-                var port = ListenPort;
-                var r = new Random();
+                SendMsg();
+            });
+        }
 
+        /// <summary>
+        /// 開啟tcp監聽器
+        /// </summary>
+        public async void CreateListener()
+        {
+            if (!_listening)
+            {
                 try
                 {
-                    var client = new TcpSocketClient();
-                    await client.ConnectAsync(address, port);
+                    _listener = new TcpSocketListener();
 
-                    // we're connected!
-                    for (int i = 0; i < 5; i++)
+                    _listener.ConnectionReceived += async (sender, args) =>
                     {
-                        // write to the 'WriteStream' property of the socket client to send data
-                        var nextByte = (byte)r.Next(0, 254);
-                        client.WriteStream.WriteByte(nextByte);
-                        await client.WriteStream.FlushAsync();
+                        var client = args.SocketClient;
+                        foreach (var msg in client.ReadStrings(_canceller.Token))
+                        {
+                            ReceiveMessage += $"{msg.Text}\n";
+                        }
+                    };
 
-                        // wait a little before sending the next bit of data
-                        await Task.Delay(TimeSpan.FromMilliseconds(500));
-                    }
 
-                    await client.DisconnectAsync();
+                    await _listener.StartListeningAsync(ListenPort, Global.DefaultCommsInterface);
+                    _canceller = new CancellationTokenSource();
+                    _listening = true;
+                    HostButtonText = "Stop Listener";
                 }
                 catch (Exception ex)
                 {
                     await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
                 }
-            });
+            }
+            else
+            {
+                try
+                {
+                    await _listener.StopListeningAsync();
+                    _canceller.Cancel();
+                    _listening = false;
+                    HostButtonText = "Start Listener";
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
+                }
+            }
+
         }
+
+
+
+
+
+
+        /// <summary>
+        /// 傳送TCP訊息
+        /// </summary>
+        public async void SendMsg()
+        {
+            var address = ConnectIP;
+            var port = ListenPort;
+
+            try
+            {
+                // 傳送訊息
+                _client = new TcpSocketClient();
+                await _client.ConnectAsync(ConnectIP, ListenPort);
+                _canceller = new CancellationTokenSource();
+                await _client.WriteStringAsync(SendMessage);
+
+                // 結尾
+                var bytes = Encoding.UTF8.GetBytes("<EOF>");
+                await _client.WriteStream.WriteAsync(bytes, 0, bytes.Length);
+                await _client.WriteStream.FlushAsync();
+
+                _canceller.Cancel();
+                await _client.DisconnectAsync();
+
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
+            }
+        }
+
+
 
         public byte[] AddByteToArray(byte[] bArray, byte newByte)
         {

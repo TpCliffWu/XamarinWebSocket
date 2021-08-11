@@ -6,27 +6,33 @@
     Title="{Binding Title}">
 
     <StackLayout Padding="0,50,0,0" HorizontalOptions="Fill">
-
-        <Label HorizontalOptions="Center" Text="Host IP" />
-        <Label HorizontalOptions="Center" Text="{Binding HostIP}" />
-
-        <Button
-            Command="{Binding StartCommand}"
+        <!--  發送訊息  -->
+        <Label HorizontalOptions="Center" Text="Send Message To IP" />
+        <Entry HorizontalOptions="Center" Text="{Binding ConnectIP}" />
+        <Entry
             HorizontalOptions="Center"
-            Text="Start Listener" />
+            Placeholder="SendMessage"
+            Text="{Binding SendMessage}" />
+        <Button
+            Command="{Binding SendCommand}"
+            HorizontalOptions="Center"
+            Text="Send" />
 
         <BoxView
             Margin="0,50"
             HeightRequest="1"
             Color="Blue" />
 
-        <Label HorizontalOptions="Center" Text="Send Message To IP" />
-        <Entry HorizontalOptions="Center" Text="{Binding ConnectIP}" />
+        <!--  接收訊息  -->
+        <Label HorizontalOptions="Center" Text="Host IP" />
+        <Label HorizontalOptions="Center" Text="{Binding HostIP}" />
 
         <Button
-            Command="{Binding SendCommand}"
+            Command="{Binding StartCommand}"
             HorizontalOptions="Center"
-            Text="Send" />
+            Text="{Binding HostButtonText}" />
+
+        <Label HorizontalOptions="Center" Text="{Binding ReceiveMessage}" />
     </StackLayout>
 
 </ContentPage>
