@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TestApp.SocketSendPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:prism="http://prismlibrary.com"
+    Title="Send"
+    prism:ViewModelLocator.AutowireViewModel="True">
+    <StackLayout Padding="0,50,0,0">
+        <!--  發送訊息  -->
+        <Label HorizontalOptions="Center" Text="Send Message To IP" />
+        <Entry HorizontalOptions="Center" Text="{Binding ConnectIP}" />
+        <Entry
+            HorizontalOptions="Center"
+            Placeholder="SendMessage"
+            Text="{Binding SendMessage}" />
+        <Button
+            Command="{Binding SendCommand}"
+            HorizontalOptions="Center"
+            Text="Send" />
+    </StackLayout>
+</ContentPage>

@@ -1,38 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
-    x:Class="TestApp.Views.MainPage"
+<TabbedPage
+    x:Class="TestApp.MainPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="{Binding Title}">
+    xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
+    xmlns:local="clr-namespace:TestApp"
+    Title="{Binding Title}"
+    android:TabbedPage.ToolbarPlacement="Bottom"
+    NavigationPage.HasNavigationBar="False">
 
-    <StackLayout Padding="0,50,0,0" HorizontalOptions="Fill">
-        <!--  發送訊息  -->
-        <Label HorizontalOptions="Center" Text="Send Message To IP" />
-        <Entry HorizontalOptions="Center" Text="{Binding ConnectIP}" />
-        <Entry
-            HorizontalOptions="Center"
-            Placeholder="SendMessage"
-            Text="{Binding SendMessage}" />
-        <Button
-            Command="{Binding SendCommand}"
-            HorizontalOptions="Center"
-            Text="Send" />
-
-        <BoxView
-            Margin="0,50"
-            HeightRequest="1"
-            Color="Blue" />
-
-        <!--  接收訊息  -->
-        <Label HorizontalOptions="Center" Text="Host IP" />
-        <Label HorizontalOptions="Center" Text="{Binding HostIP}" />
-
-        <Button
-            Command="{Binding StartCommand}"
-            HorizontalOptions="Center"
-            Text="{Binding HostButtonText}" />
-
-        <Label HorizontalOptions="Center" Text="{Binding ReceiveMessage}" />
-    </StackLayout>
-
-</ContentPage>
+    <local:SocketListenerPage />
+    <local:SocketSendPage />
+</TabbedPage>

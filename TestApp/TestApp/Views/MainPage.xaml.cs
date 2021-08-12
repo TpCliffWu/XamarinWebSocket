@@ -1,5 +1,5 @@
 ﻿
-namespace TestApp.Views
+namespace TestApp
 {
     public partial class MainPage
     {

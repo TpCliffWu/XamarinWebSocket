@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TestApp.SocketListenerPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:prism="http://prismlibrary.com"
+    Title="Listener"
+    prism:ViewModelLocator.AutowireViewModel="True">
+    <StackLayout Padding="0,50,0,0">
+        <!--  接收訊息  -->
+
+        <Label HorizontalOptions="Center" Text="Host IP" />
+        <Label HorizontalOptions="Center" Text="{Binding HostIP}" />
+
+        <Button
+            Command="{Binding StartCommand}"
+            HorizontalOptions="Center"
+            Text="{Binding HostButtonText}" />
+
+        <Label HorizontalOptions="Center" Text="{Binding ReceiveMessage}" />
+    </StackLayout>
+</ContentPage>

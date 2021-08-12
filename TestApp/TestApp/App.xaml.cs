@@ -2,7 +2,6 @@ using Prism;
 using Prism.Ioc;
 using Sockets.Plugin;
 using TestApp.ViewModels;
-using TestApp.Views;
 using Xamarin.Essentials.Implementation;
 using Xamarin.Essentials.Interfaces;
 using Xamarin.Forms;
@@ -29,6 +28,9 @@ namespace TestApp
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
+
+            containerRegistry.RegisterForNavigation<SocketListenerPage, SocketListenerPageViewModel>();
+            containerRegistry.RegisterForNavigation<SocketSendPage, SocketSendPageViewModel>();
         }
 
         public static class Global
