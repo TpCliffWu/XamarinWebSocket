@@ -2,18 +2,62 @@
 using Prism.Mvvm;
 using Prism.Services;
 using Sockets.Plugin;
+using Sockets.Plugin.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.Forms;
 using static TestApp.App;
 
 namespace TestApp.ViewModels
 {
     public class SocketListenerPageViewModel : BindableBase
     {
+        public List<ITcpSocketClient> _clients = new List<ITcpSocketClient>();
+        public IPageDialogService _dialogService;
+        public TcpSocketListener _listener;
+        public CancellationTokenSource _canceller;
+        public int ListenPort = 11000;
+
+        public DelegateCommand StartCommand { get; set; }
+        public DelegateCommand ResponseCommand { get; set; }
+
+
+        public string HostButtonText
+        {
+            get { return _hostButtonText; }
+            set { SetProperty(ref _hostButtonText, value); }
+        }
+
+        public string HostIP
+        {
+            get { return _hostIP; }
+            set { SetProperty(ref _hostIP, value); }
+        }
+        public string ReceiveMessage
+        {
+            get { return _receiveMessage; }
+            set { SetProperty(ref _receiveMessage, value); }
+        }
+
+        private string _responseMessage;
+        public string ResponseMessage
+        {
+            get { return _responseMessage; }
+            set { SetProperty(ref _responseMessage, value); }
+        }
+
+        private bool _listening;
+        public bool Listening
+        {
+            get { return _listening; }
+            set { SetProperty(ref _listening, value); }
+        }
+
         public SocketListenerPageViewModel(IPageDialogService dialogService)
         {
             _dialogService = dialogService;
@@ -22,15 +66,17 @@ namespace TestApp.ViewModels
             // 取得host ip
             try
             {
+                HostIP += $"Real IP: \n";
+                // 真實IP
+                string pubIp = new System.Net.WebClient().DownloadString("https://api.ipify.org");
+
+                HostIP += $"{pubIp} \n";
+                HostIP += $"DNS IP: \n";
                 foreach (IPAddress adress in Dns.GetHostAddresses(Dns.GetHostName()))
                 {
                     if (!string.IsNullOrWhiteSpace(adress.ToString()))
                     {
-                        if (adress.ToString().Contains("192"))
-                        {
-                            HostIP = adress.ToString();
-                            break;
-                        }
+                        HostIP += $"{adress.ToString()}\n";
                     }
                 }
             }
@@ -44,36 +90,15 @@ namespace TestApp.ViewModels
             {
                 CreateListener();
             });
+
+            ResponseCommand = new DelegateCommand(async () =>
+            {
+                Response();
+            });
         }
 
-        IPageDialogService _dialogService;
-        private string hostButtonText;
-        public string HostButtonText
-        {
-            get { return hostButtonText; }
-            set { SetProperty(ref hostButtonText, value); }
-        }
 
-        private string hostIP;
-        public string HostIP
-        {
-            get { return hostIP; }
-            set { SetProperty(ref hostIP, value); }
-        }
 
-        public DelegateCommand StartCommand { get; set; }
-
-        private bool _listening;
-        public TcpSocketListener _listener;
-        public int ListenPort = 11000;
-        public CancellationTokenSource _canceller;
-
-        private string _receiveMessage;
-        public string ReceiveMessage
-        {
-            get { return _receiveMessage; }
-            set { SetProperty(ref _receiveMessage, value); }
-        }
 
 
         /// <summary>
@@ -81,7 +106,7 @@ namespace TestApp.ViewModels
         /// </summary>
         public async void CreateListener()
         {
-            if (!_listening)
+            if (!Listening)
             {
                 // 開啟
                 try
@@ -89,18 +114,26 @@ namespace TestApp.ViewModels
                     _listener = new TcpSocketListener();
 
                     _listener.ConnectionReceived += async (sender, args) =>
-                    {
-                        var client = args.SocketClient;
-                        foreach (var msg in client.ReadStrings(_canceller.Token))
-                        {
-                            ReceiveMessage += $"{msg.Text}\n";
-                        }
-                    };
+                   {
+                       var client = args.SocketClient;
+
+                       Device.BeginInvokeOnMainThread(() => _clients.Add(client));
+
+                       Task.Factory.StartNew(() =>
+                       {
+                           foreach (var msg in client.ReadStrings(_canceller.Token))
+                           {
+                               ReceiveMessage += $"{msg.Text} {msg.DetailText} \n";
+                           }
+
+                           Device.BeginInvokeOnMainThread(() => _clients.Remove(client));
+                       }, TaskCreationOptions.LongRunning);
+                   };
 
 
                     await _listener.StartListeningAsync(ListenPort, Global.DefaultCommsInterface);
                     _canceller = new CancellationTokenSource();
-                    _listening = true;
+                    Listening = true;
                     HostButtonText = "Stop Listener";
                 }
                 catch (Exception ex)
@@ -115,7 +148,7 @@ namespace TestApp.ViewModels
                 {
                     await _listener.StopListeningAsync();
                     _canceller.Cancel();
-                    _listening = false;
+                    Listening = false;
                     HostButtonText = "Start Listener";
                 }
                 catch (Exception ex)
@@ -125,5 +158,20 @@ namespace TestApp.ViewModels
             }
 
         }
+
+        // 回傳
+        public async void Response()
+        {
+            if (_clients.Any())
+            {
+                var sendTasks = _clients.Select(c => SocketExtensions.WriteStringAsync(c, ResponseMessage)).ToList();
+                await Task.WhenAll(sendTasks);
+            }
+        }
+
+
+        private string _hostButtonText;
+        private string _receiveMessage;
+        private string _hostIP;
     }
 }

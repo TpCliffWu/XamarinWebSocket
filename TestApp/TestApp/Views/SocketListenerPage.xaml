@@ -9,14 +9,33 @@
     <StackLayout Padding="0,50,0,0">
         <!--  接收訊息  -->
 
-        <Label HorizontalOptions="Center" Text="Host IP" />
-        <Label HorizontalOptions="Center" Text="{Binding HostIP}" />
+        <StackLayout Orientation="Horizontal">
+            <Label
+                HorizontalOptions="StartAndExpand"
+                Text="{Binding HostIP}"
+                VerticalOptions="Center" />
 
-        <Button
-            Command="{Binding StartCommand}"
-            HorizontalOptions="Center"
-            Text="{Binding HostButtonText}" />
+            <Button
+                Command="{Binding StartCommand}"
+                HorizontalOptions="End"
+                Text="{Binding HostButtonText}"
+                VerticalOptions="Center" />
+        </StackLayout>
 
+
+        <StackLayout Orientation="Horizontal">
+            <Entry
+                HorizontalOptions="StartAndExpand"
+                Placeholder="Response Message"
+                Text="{Binding ResponseMessage}"
+                VerticalOptions="Center" />
+
+            <Button
+                Command="{Binding ResponseCommand}"
+                HorizontalOptions="End"
+                Text="Response"
+                VerticalOptions="Center" />
+        </StackLayout>
         <Label HorizontalOptions="Center" Text="{Binding ReceiveMessage}" />
     </StackLayout>
 </ContentPage>

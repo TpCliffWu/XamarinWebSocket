@@ -14,9 +14,19 @@
             HorizontalOptions="Center"
             Placeholder="SendMessage"
             Text="{Binding SendMessage}" />
+
+
         <Button
             Command="{Binding SendCommand}"
             HorizontalOptions="Center"
             Text="Send" />
+
+        <Button
+            Command="{Binding CloseCommand}"
+            HorizontalOptions="Center"
+            Text="Close Connect" />
+
+
+        <Label HorizontalOptions="Center" Text="{Binding ResponseMessage}" />
     </StackLayout>
 </ContentPage>
