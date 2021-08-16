@@ -10,7 +10,10 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using TestApp.Interface;
+using Xamarin.Essentials;
 using Xamarin.Forms;
+
 using static TestApp.App;
 
 namespace TestApp.ViewModels
@@ -26,17 +29,17 @@ namespace TestApp.ViewModels
         public DelegateCommand StartCommand { get; set; }
         public DelegateCommand ResponseCommand { get; set; }
 
-
+        public DelegateCommand GetWifiInfoCommand { get; set; }
         public string HostButtonText
         {
             get { return _hostButtonText; }
             set { SetProperty(ref _hostButtonText, value); }
         }
 
-        public string HostIP
+        public string IPInfo
         {
-            get { return _hostIP; }
-            set { SetProperty(ref _hostIP, value); }
+            get { return _iPInfo; }
+            set { SetProperty(ref _iPInfo, value); }
         }
         public string ReceiveMessage
         {
@@ -58,6 +61,14 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _listening, value); }
         }
 
+
+        private string _wifiInfo;
+        public string WifiInfo
+        {
+            get { return _wifiInfo; }
+            set { SetProperty(ref _wifiInfo, value); }
+        }
+
         public SocketListenerPageViewModel(IPageDialogService dialogService)
         {
             _dialogService = dialogService;
@@ -66,25 +77,30 @@ namespace TestApp.ViewModels
             // 取得host ip
             try
             {
-                HostIP += $"Real IP: \n";
+                IPInfo += $"Real IP: \n";
                 // 真實IP
                 string pubIp = new System.Net.WebClient().DownloadString("https://api.ipify.org");
 
-                HostIP += $"{pubIp} \n";
-                HostIP += $"DNS IP: \n";
+                IPInfo += $"{pubIp} \n";
+                IPInfo += $"DNS IP: \n";
                 foreach (IPAddress adress in Dns.GetHostAddresses(Dns.GetHostName()))
                 {
                     if (!string.IsNullOrWhiteSpace(adress.ToString()))
                     {
-                        HostIP += $"{adress.ToString()}\n";
+                        IPInfo += $"{adress.MapToIPv4()}\n";
                     }
                 }
+
+
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"{ex}");
             }
-
+            GetWifiInfoCommand = new DelegateCommand(async () =>
+            {
+                await GetWifiInfo();
+            });
 
             StartCommand = new DelegateCommand(async () =>
             {
@@ -97,6 +113,30 @@ namespace TestApp.ViewModels
             });
         }
 
+        public async Task GetWifiInfo()
+        {
+
+            // WIFI 資訊
+            // 權限
+            try
+            {
+                if (Device.RuntimePlatform == Device.Android)
+                {
+                    var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                    }
+                }
+                WifiInfo = "";
+                WifiInfo += $"WIFI SSID: \n";
+                WifiInfo += DependencyService.Get<IDeviceWifiService>().GetSSID();
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
+            }
+        }
 
 
 
@@ -172,6 +212,6 @@ namespace TestApp.ViewModels
 
         private string _hostButtonText;
         private string _receiveMessage;
-        private string _hostIP;
+        private string _iPInfo;
     }
 }

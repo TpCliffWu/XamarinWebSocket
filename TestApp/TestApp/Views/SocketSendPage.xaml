@@ -9,9 +9,10 @@
     <StackLayout Padding="0,50,0,0">
         <!--  發送訊息  -->
         <Label HorizontalOptions="Center" Text="Send Message To IP" />
-        <Entry HorizontalOptions="Center" Text="{Binding ConnectIP}" />
+
+        <Entry HorizontalOptions="CenterAndExpand" Text="{Binding ConnectIP}" />
         <Entry
-            HorizontalOptions="Center"
+            HorizontalOptions="CenterAndExpand"
             Placeholder="SendMessage"
             Text="{Binding SendMessage}" />
 

@@ -6,36 +6,65 @@
     xmlns:prism="http://prismlibrary.com"
     Title="Listener"
     prism:ViewModelLocator.AutowireViewModel="True">
+    <!--  接收訊息  -->
     <StackLayout Padding="0,50,0,0">
-        <!--  接收訊息  -->
 
-        <StackLayout Orientation="Horizontal">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <!--  IP資訊  -->
             <Label
+                Grid.Column="0"
                 HorizontalOptions="StartAndExpand"
-                Text="{Binding HostIP}"
-                VerticalOptions="Center" />
+                Text="{Binding IPInfo}" />
 
-            <Button
-                Command="{Binding StartCommand}"
-                HorizontalOptions="End"
-                Text="{Binding HostButtonText}"
-                VerticalOptions="Center" />
-        </StackLayout>
+            <!--  WIFI資訊  -->
+            <StackLayout Grid.Column="1">
+                <Button
+                    BackgroundColor="Blue"
+                    Command="{Binding GetWifiInfoCommand}"
+                    HorizontalOptions="Start"
+                    Text="WIFI INFO"
+                    TextColor="White" />
+                <Label HorizontalOptions="StartAndExpand" Text="{Binding WifiInfo}" />
+            </StackLayout>
+
+        </Grid>
 
 
-        <StackLayout Orientation="Horizontal">
-            <Entry
-                HorizontalOptions="StartAndExpand"
-                Placeholder="Response Message"
-                Text="{Binding ResponseMessage}"
-                VerticalOptions="Center" />
 
-            <Button
-                Command="{Binding ResponseCommand}"
-                HorizontalOptions="End"
-                Text="Response"
-                VerticalOptions="Center" />
-        </StackLayout>
+
+
+
+
+
+        <!--  開啟/關閉站台  -->
+        <Button
+            BackgroundColor="LightBlue"
+            Command="{Binding StartCommand}"
+            HorizontalOptions="Start"
+            Text="{Binding HostButtonText}"
+            TextColor="Black" />
+
+
+
+        <!--  回傳訊息  -->
+        <Entry
+            HorizontalOptions="Fill"
+            Placeholder="Response Message"
+            Text="{Binding ResponseMessage}" />
+
+        <Button
+            BackgroundColor="LightCoral"
+            Command="{Binding ResponseCommand}"
+            HorizontalOptions="StartAndExpand"
+            Text="Response"
+            TextColor="Black" />
+
+
+        <!--  接收到的訊息  -->
         <Label HorizontalOptions="Center" Text="{Binding ReceiveMessage}" />
     </StackLayout>
 </ContentPage>

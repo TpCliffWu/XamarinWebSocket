@@ -1,6 +1,7 @@
 using Prism;
 using Prism.Ioc;
 using Sockets.Plugin;
+using TestApp.Interface;
 using TestApp.ViewModels;
 using Xamarin.Essentials.Implementation;
 using Xamarin.Essentials.Interfaces;
@@ -31,6 +32,7 @@ namespace TestApp
 
             containerRegistry.RegisterForNavigation<SocketListenerPage, SocketListenerPageViewModel>();
             containerRegistry.RegisterForNavigation<SocketSendPage, SocketSendPageViewModel>();
+
         }
 
         public static class Global

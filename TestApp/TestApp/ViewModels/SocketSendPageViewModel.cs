@@ -66,7 +66,7 @@ namespace TestApp.ViewModels
         public SocketSendPageViewModel(IPageDialogService dialogService)
         {
             _dialogService = dialogService;
-            ConnectIP = "192.168.40.201"; // 預設值 
+            ConnectIP = "192.168.100.147"; // 預設值 
             ConnectText = "Connect";
 
             SendCommand = new DelegateCommand(async () =>
