@@ -96,7 +96,7 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _pickerSelectedIndex, value); }
         }
 
-        public SocketListenerPageViewModel(INavigationService navigationService,IPageDialogService dialogService) : base(navigationService)
+        public SocketListenerPageViewModel(INavigationService navigationService, IPageDialogService dialogService) : base(navigationService)
         {
             _dialogService = dialogService;
 
@@ -169,17 +169,18 @@ namespace TestApp.ViewModels
             // 權限
             try
             {
-                if (Device.RuntimePlatform == Device.Android)
+                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                if (status != PermissionStatus.Granted)
                 {
-                    var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-                    if (status != PermissionStatus.Granted)
-                    {
-                        status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-                    }
+                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
                 }
-                WifiInfo = "";
-                WifiInfo += $"WIFI SSID: \n";
-                WifiInfo += DependencyService.Get<IDeviceWifiService>().GetSSID();
+
+                if (status == PermissionStatus.Granted)
+                {
+                    WifiInfo = "";
+                    WifiInfo += $"WIFI SSID: \n";
+                    WifiInfo += DependencyService.Get<IDeviceWifiService>().GetSSID();
+                }
             }
             catch (Exception ex)
             {
