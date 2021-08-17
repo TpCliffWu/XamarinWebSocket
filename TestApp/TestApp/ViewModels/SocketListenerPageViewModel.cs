@@ -1,5 +1,6 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Navigation;
 using Prism.Services;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
@@ -19,7 +20,7 @@ using static TestApp.App;
 
 namespace TestApp.ViewModels
 {
-    public class SocketListenerPageViewModel : BindableBase
+    public class SocketListenerPageViewModel : ViewModelBase
     {
         public List<ITcpSocketClient> _tcpClients = new List<ITcpSocketClient>();
 
@@ -95,7 +96,7 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _pickerSelectedIndex, value); }
         }
 
-        public SocketListenerPageViewModel(IPageDialogService dialogService)
+        public SocketListenerPageViewModel(INavigationService navigationService,IPageDialogService dialogService) : base(navigationService)
         {
             _dialogService = dialogService;
 

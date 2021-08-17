@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Navigation;
 using Prism.Services;
 using Sockets.Plugin;
 using System;
@@ -11,11 +12,13 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TestApp.Interface;
 using Xamarin.Essentials;
+using Xamarin.Forms;
 
 namespace TestApp.ViewModels
 {
-    public class SocketSendPageViewModel : BindableBase
+    public class SocketSendPageViewModel : ViewModelBase
     {
         public IPageDialogService _dialogService;
         public DelegateCommand SendCommand { get; set; }
@@ -23,6 +26,9 @@ namespace TestApp.ViewModels
         public DelegateCommand CloseCommand { get; set; }
 
         public DelegateCommand ConnectCommand { get; set; }
+
+        public DelegateCommand GetIPInfoCommand { get; set; }
+
 
         public TcpSocketClient _client;
 
@@ -74,7 +80,7 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _receiveMessageList, value); }
         }
 
-        public SocketSendPageViewModel(IPageDialogService dialogService)
+        public SocketSendPageViewModel(INavigationService navigationService, IPageDialogService dialogService) : base(navigationService)
         {
             _dialogService = dialogService;
             ConnectIP = "192.168.100.147"; // 預設值 
@@ -100,6 +106,10 @@ namespace TestApp.ViewModels
             CloseCommand = new DelegateCommand(async () =>
             {
                 Close();
+            });
+            GetIPInfoCommand = new DelegateCommand(async () =>
+            {
+                await GetWifiInfo();
             });
 
         }
@@ -244,6 +254,38 @@ namespace TestApp.ViewModels
                     await _client.DisconnectAsync();
                     Connected = false;
                 }
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
+            }
+        }
+
+        private string _wifiInfo;
+        public string WifiInfo
+        {
+            get { return _wifiInfo; }
+            set { SetProperty(ref _wifiInfo, value); }
+        }
+
+        public async Task GetWifiInfo()
+        {
+
+            // WIFI 資訊
+            // 權限
+            try
+            {
+                if (Device.RuntimePlatform == Device.Android)
+                {
+                    var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                    }
+                }
+                WifiInfo = "";
+                WifiInfo += $"WIFI SSID: \n";
+                WifiInfo += DependencyService.Get<IDeviceWifiService>().GetSSID();
             }
             catch (Exception ex)
             {
