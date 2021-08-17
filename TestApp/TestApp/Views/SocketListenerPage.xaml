@@ -7,31 +7,23 @@
     Title="Listener"
     prism:ViewModelLocator.AutowireViewModel="True">
     <!--  接收訊息  -->
-    <StackLayout Padding="0,50,0,0">
+    <ScrollView>
+        <StackLayout Padding="10,10,10,0">
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+            <Label HorizontalOptions="Center" Text="Server" />
+            <!--  重新整理IP資訊  -->
+            <Button
+                BackgroundColor="Blue"
+                Command="{Binding GetIPInfoCommand}"
+                HorizontalOptions="Start"
+                Text="WIFI INFO ♻"
+                TextColor="White" />
+
             <!--  IP資訊  -->
-            <Label
-                Grid.Column="0"
-                HorizontalOptions="StartAndExpand"
-                Text="{Binding IPInfo}" />
+            <Label HorizontalOptions="StartAndExpand" Text="{Binding IPInfo}" />
 
             <!--  WIFI資訊  -->
-            <StackLayout Grid.Column="1">
-                <Button
-                    BackgroundColor="Blue"
-                    Command="{Binding GetWifiInfoCommand}"
-                    HorizontalOptions="Start"
-                    Text="WIFI INFO"
-                    TextColor="White" />
-                <Label HorizontalOptions="StartAndExpand" Text="{Binding WifiInfo}" />
-            </StackLayout>
-
-        </Grid>
+            <Label HorizontalOptions="StartAndExpand" Text="{Binding WifiInfo}" />
 
 
 
@@ -40,31 +32,80 @@
 
 
 
-        <!--  開啟/關閉站台  -->
-        <Button
-            BackgroundColor="LightBlue"
-            Command="{Binding StartCommand}"
-            HorizontalOptions="Start"
-            Text="{Binding HostButtonText}"
-            TextColor="Black" />
+            <!--  開啟/關閉站台  -->
+            <Button
+                BackgroundColor="LightBlue"
+                Command="{Binding StartCommand}"
+                HorizontalOptions="Start"
+                Text="{Binding HostButtonText}"
+                TextColor="Black" />
 
 
 
-        <!--  回傳訊息  -->
-        <Entry
-            HorizontalOptions="Fill"
-            Placeholder="Response Message"
-            Text="{Binding ResponseMessage}" />
+            <Entry
+                HorizontalOptions="FillAndExpand"
+                Placeholder="Response Message"
+                Text="{Binding ResponseMessage}" />
 
-        <Button
-            BackgroundColor="LightCoral"
-            Command="{Binding ResponseCommand}"
-            HorizontalOptions="StartAndExpand"
-            Text="Response"
-            TextColor="Black" />
+            <Picker
+                Title="Select Response Client"
+                ItemDisplayBinding="{Binding DeviceName}"
+                ItemsSource="{Binding TcpSocketClientWithUsers}"
+                SelectedIndex="{Binding PickerSelectedIndex}" />
+
+            <Button
+                BackgroundColor="LightCoral"
+                Command="{Binding ResponseCommand}"
+                Text="Response"
+                TextColor="Black" />
+            <!--  回傳訊息  -->
 
 
-        <!--  接收到的訊息  -->
-        <Label HorizontalOptions="Center" Text="{Binding ReceiveMessage}" />
-    </StackLayout>
+
+
+            <!--  接收到的訊息  -->
+            <!--<Label HorizontalOptions="Center" Text="{Binding ReceiveMessage}" />-->
+            <ListView HasUnevenRows="True" ItemsSource="{Binding ReceiveMessageList}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <!--<TextCell Text="{Binding Text}" TextColor="Black" />-->
+                        <ViewCell>
+                            <StackLayout>
+                                <!--  裝置 IP  -->
+                                <Label>
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="From: " />
+                                            <Span Text="{Binding DeviceName}" TextColor="DeepSkyBlue" />
+                                            <Span Text="    " />
+                                            <Span Text="{Binding IPAddress}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <!--  訊息  -->
+                                <Label>
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Message : " />
+                                            <Span Text="{Binding Text}" TextColor="IndianRed" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <!--  訊息  -->
+                                <Label>
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Receive Time : " />
+                                            <Span Text="{Binding MessageDateTime}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

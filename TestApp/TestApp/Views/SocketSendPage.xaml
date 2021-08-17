@@ -6,28 +6,82 @@
     xmlns:prism="http://prismlibrary.com"
     Title="Send"
     prism:ViewModelLocator.AutowireViewModel="True">
-    <StackLayout Padding="0,50,0,0">
-        <!--  發送訊息  -->
-        <Label HorizontalOptions="Center" Text="Send Message To IP" />
+    <ScrollView>
+        <StackLayout Padding="10,10,10,0">
+            <Label HorizontalOptions="Center" Text="Client" />
+            <!--  發送訊息  -->
+            <Label HorizontalOptions="Start" Text="Send Message To IP" />
 
-        <Entry HorizontalOptions="CenterAndExpand" Text="{Binding ConnectIP}" />
-        <Entry
-            HorizontalOptions="CenterAndExpand"
-            Placeholder="SendMessage"
-            Text="{Binding SendMessage}" />
+            <Entry HorizontalOptions="FillAndExpand" Text="{Binding ConnectIP}" />
+            <StackLayout Orientation="Horizontal">
+                <Entry
+                    HorizontalOptions="FillAndExpand"
+                    Placeholder="SendMessage"
+                    Text="{Binding SendMessage}" />
+
+                <Button
+                    BackgroundColor="LightCoral"
+                    Command="{Binding SendCommand}"
+                    Text="Send" />
+            </StackLayout>
 
 
-        <Button
-            Command="{Binding SendCommand}"
+
+            <!--<Button
+            Command="{Binding ConnectCommand}"
             HorizontalOptions="Center"
-            Text="Send" />
-
-        <Button
-            Command="{Binding CloseCommand}"
-            HorizontalOptions="Center"
-            Text="Close Connect" />
+            Text="Connect" />-->
 
 
-        <Label HorizontalOptions="Center" Text="{Binding ResponseMessage}" />
-    </StackLayout>
+            <Button
+                Command="{Binding CloseCommand}"
+                HorizontalOptions="Center"
+                Text="Close Connect" />
+
+
+            <!--<Label HorizontalOptions="Center" Text="{Binding ResponseMessage}" />-->
+
+            <ListView HasUnevenRows="True" ItemsSource="{Binding ReceiveMessageList}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <!--<TextCell Text="{Binding Text}" TextColor="Black" />-->
+                        <ViewCell>
+                            <StackLayout>
+                                <!--  裝置 IP  -->
+                                <Label>
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="From: " />
+                                            <Span Text="{Binding DeviceName}" TextColor="DeepSkyBlue" />
+                                            <Span Text="    " />
+                                            <Span Text="{Binding IPAddress}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <!--  訊息  -->
+                                <Label>
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Message : " />
+                                            <Span Text="{Binding Text}" TextColor="IndianRed" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <!--  訊息  -->
+                                <Label>
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Receive Time : " />
+                                            <Span Text="{Binding MessageDateTime}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

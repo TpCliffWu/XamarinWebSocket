@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Sockets.Plugin.Abstractions;
 
 namespace TestApp
@@ -18,9 +19,10 @@ namespace TestApp
         /// <param name="eom"></param>
         /// <param name="eof"></param>
         /// <returns></returns>
-        public static IEnumerable<Message> ReadStrings(this ITcpSocketClient client, CancellationToken cancellationToken, string eom = "<EOM>", string eof = "<EOF>")
+        public static IEnumerable<TCPMessage> ReadStrings(this ITcpSocketClient client, CancellationToken cancellationToken, string eom = "<EOM>", string eof = "<EOF>")
         {
-            var from = String.Format("{0}:{1}", client.RemoteAddress, client.RemotePort);
+            //   var from = String.Format("{0}:{1}", client.RemoteAddress, client.RemotePort);
+            var from = client.RemoteAddress;
 
             var currData = "";
             int bytesRec = 0;
@@ -35,13 +37,23 @@ namespace TestApp
                 // Hit an EOM - we have a full message in currData;
                 if (currData.IndexOf(eom, StringComparison.Ordinal) > -1)
                 {
-                    var msg = new Message
+                    var msgData = currData.Substring(0, currData.IndexOf(eom));
+
+                    var msg = new TCPMessage();
+                    try
                     {
-                        Text = currData.Substring(0, currData.IndexOf(eom)),
-                        DetailText = String.Format("<Received from {0} at {1}>", from, DateTime.Now.ToString("HH:mm:ss"))
-                    };
+                        msg = JsonConvert.DeserializeObject<TCPMessage>(msgData);
+                        msg.IPAddress = from;
+                        msg.MessageDateTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                    }
+                    catch
+                    {
+                        msg.Text = currData.Substring(0, currData.IndexOf(eom));
+                        msg.DetailText = String.Format("<Received from {0} at {1}>", from, DateTime.Now.ToString("HH:mm:ss"));
+                    }
 
                     yield return msg;
+
 
                     currData = currData.Substring(currData.IndexOf(eom) + eom.Length);
                 }
@@ -49,7 +61,7 @@ namespace TestApp
                 // Hit an EOF - client is gracefully disconnecting
                 if (currData.IndexOf(eof, StringComparison.Ordinal) > -1)
                 {
-                    var msg = new Message
+                    var msg = new TCPMessage
                     {
                         DetailText = String.Format("<{0} disconnected at {1}>", from, DateTime.Now.ToString("HH:mm:ss"))
                     };
@@ -81,6 +93,16 @@ namespace TestApp
         public async static Task WriteStringAsync(this ITcpSocketClient client, string s, string eom = "<EOM>")
         {
             var bytes = (s + eom).ToUTF8Bytes();
+
+            await client.WriteStream.WriteAsync(bytes, 0, bytes.Length);
+            await client.WriteStream.FlushAsync();
+        }
+
+        public async static Task WriteStringAsync(this ITcpSocketClient client, TCPMessage s, string eom = "<EOM>")
+        {
+            var s_json = JsonConvert.SerializeObject(s);
+
+            var bytes = (s_json + eom).ToUTF8Bytes();
 
             await client.WriteStream.WriteAsync(bytes, 0, bytes.Length);
             await client.WriteStream.FlushAsync();

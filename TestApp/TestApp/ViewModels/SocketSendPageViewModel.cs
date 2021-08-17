@@ -1,14 +1,17 @@
-﻿using Prism.Commands;
+﻿using Newtonsoft.Json;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services;
 using Sockets.Plugin;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.Essentials;
 
 namespace TestApp.ViewModels
 {
@@ -18,6 +21,8 @@ namespace TestApp.ViewModels
         public DelegateCommand SendCommand { get; set; }
 
         public DelegateCommand CloseCommand { get; set; }
+
+        public DelegateCommand ConnectCommand { get; set; }
 
         public TcpSocketClient _client;
 
@@ -62,16 +67,33 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _connectText, value); }
         }
 
+        private ObservableCollection<TCPMessage> _receiveMessageList = new ObservableCollection<TCPMessage>();
+        public ObservableCollection<TCPMessage> ReceiveMessageList
+        {
+            get { return _receiveMessageList; }
+            set { SetProperty(ref _receiveMessageList, value); }
+        }
 
         public SocketSendPageViewModel(IPageDialogService dialogService)
         {
             _dialogService = dialogService;
             ConnectIP = "192.168.100.147"; // 預設值 
             ConnectText = "Connect";
+            Connected = false;
+
+            ConnectCommand = new DelegateCommand(async () =>
+             {
+                 Connect();
+
+             });
 
             SendCommand = new DelegateCommand(async () =>
             {
-                Connect();
+                if (!Connected)
+                {
+                    Connect();
+                }
+           
                 SendMsg();
             });
 
@@ -82,7 +104,78 @@ namespace TestApp.ViewModels
 
         }
 
+        public ClientWebSocket webSocketClient;
 
+        public async void WebScocketConnect()
+        {
+            webSocketClient = new ClientWebSocket();
+            _cancelTokenSource = new CancellationTokenSource();
+
+            await webSocketClient.ConnectAsync(new Uri($"ws://{ConnectIP}:{ListenPort}"), _cancelTokenSource.Token);
+            try
+            {
+                await Task.Factory.StartNew(async () =>
+                {
+                    while (true)
+                    {
+                        WebSocketReceiveResult result;
+                        var message = new ArraySegment<byte>(new byte[4096]);
+                        do
+                        {
+                            result = await webSocketClient.ReceiveAsync(message, _cancelTokenSource.Token);
+                            var messageBytes = message.Skip(message.Offset).Take(result.Count).ToArray();
+                            string serialisedMessae = Encoding.UTF8.GetString(messageBytes);
+
+                            try
+                            {
+                                var msg = JsonConvert.DeserializeObject<WebSocketMessage>(serialisedMessae);
+                                ResponseMessage += $"{msg.Text} {msg.MessagDateTime}\n";
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Invalide message format. {ex.Message}");
+                            }
+
+                        } while (!result.EndOfMessage);
+                    }
+                }, _cancelTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
+            }
+        }
+
+        public async void WebScocketSend()
+        {
+            try
+            {
+                var msg = new WebSocketMessage
+                {
+                    Name = DeviceInfo.Name,
+                    MessagDateTime = DateTime.Now,
+                    Text = this.SendMessage,
+                    UserId = DeviceInfo.Name
+                };
+
+                string serialisedMessage = JsonConvert.SerializeObject(msg);
+
+                var byteMessage = Encoding.UTF8.GetBytes(serialisedMessage);
+                var segmnet = new ArraySegment<byte>(byteMessage);
+
+                await webSocketClient.SendAsync(segmnet, WebSocketMessageType.Text, true, _cancelTokenSource.Token);
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
+            }
+        }
+
+
+
+
+
+ 
 
         public async void Connect()
         {
@@ -99,6 +192,7 @@ namespace TestApp.ViewModels
                     foreach (var msg in _client.ReadStrings(_cancelTokenSource.Token))
                     {
                         ResponseMessage += $"{msg.Text} {msg.DetailText} \n";
+                        ReceiveMessageList.Add(msg);
                     }
                 }, TaskCreationOptions.LongRunning);
             }
@@ -108,9 +202,6 @@ namespace TestApp.ViewModels
             }
 
         }
-
-
-
 
         /// <summary>
         /// 傳送TCP訊息
@@ -125,7 +216,12 @@ namespace TestApp.ViewModels
                 _cancelTokenSource = new CancellationTokenSource();
 
                 // 傳送訊息
-                await _client.WriteStringAsync(SendMessage);
+                //   await _client.WriteStringAsync(SendMessage);
+                var msg = new TCPMessage();
+                msg.Text = SendMessage;
+                msg.DeviceName = $"{DeviceInfo.Manufacturer}/{DeviceInfo.Name}";
+
+                await _client.WriteStringAsync(msg);
             }
             catch (Exception ex)
             {
@@ -146,6 +242,7 @@ namespace TestApp.ViewModels
 
                     _cancelTokenSource.Cancel();
                     await _client.DisconnectAsync();
+                    Connected = false;
                 }
             }
             catch (Exception ex)

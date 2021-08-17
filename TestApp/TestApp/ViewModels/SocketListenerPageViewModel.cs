@@ -5,6 +5,7 @@ using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -20,7 +21,8 @@ namespace TestApp.ViewModels
 {
     public class SocketListenerPageViewModel : BindableBase
     {
-        public List<ITcpSocketClient> _clients = new List<ITcpSocketClient>();
+        public List<ITcpSocketClient> _tcpClients = new List<ITcpSocketClient>();
+
         public IPageDialogService _dialogService;
         public TcpSocketListener _listener;
         public CancellationTokenSource _canceller;
@@ -29,7 +31,7 @@ namespace TestApp.ViewModels
         public DelegateCommand StartCommand { get; set; }
         public DelegateCommand ResponseCommand { get; set; }
 
-        public DelegateCommand GetWifiInfoCommand { get; set; }
+        public DelegateCommand GetIPInfoCommand { get; set; }
         public string HostButtonText
         {
             get { return _hostButtonText; }
@@ -69,37 +71,46 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _wifiInfo, value); }
         }
 
+        private ObservableCollection<TCPMessage> _receiveMessageList = new ObservableCollection<TCPMessage>();
+        public ObservableCollection<TCPMessage> ReceiveMessageList
+        {
+            get { return _receiveMessageList; }
+            set
+            {
+                SetProperty(ref _receiveMessageList, value);
+            }
+        }
+
+        private ObservableCollection<TcpSocketClientWithUser> tcpSocketClientWithUsers = new ObservableCollection<TcpSocketClientWithUser>();
+        public ObservableCollection<TcpSocketClientWithUser> TcpSocketClientWithUsers
+        {
+            get { return tcpSocketClientWithUsers; }
+            set { SetProperty(ref tcpSocketClientWithUsers, value); }
+        }
+
+        private int _pickerSelectedIndex = 0;
+        public int PickerSelectedIndex
+        {
+            get { return _pickerSelectedIndex; }
+            set { SetProperty(ref _pickerSelectedIndex, value); }
+        }
+
         public SocketListenerPageViewModel(IPageDialogService dialogService)
         {
             _dialogService = dialogService;
 
             HostButtonText = "Start Listener";
             // 取得host ip
-            try
-            {
-                IPInfo += $"Real IP: \n";
-                // 真實IP
-                string pubIp = new System.Net.WebClient().DownloadString("https://api.ipify.org");
+            GetIPInfo();
 
-                IPInfo += $"{pubIp} \n";
-                IPInfo += $"DNS IP: \n";
-                foreach (IPAddress adress in Dns.GetHostAddresses(Dns.GetHostName()))
-                {
-                    if (!string.IsNullOrWhiteSpace(adress.ToString()))
-                    {
-                        IPInfo += $"{adress.MapToIPv4()}\n";
-                    }
-                }
+            var tcp = new TcpSocketClientWithUser();
+            tcp.DeviceName = "ALL";
+            TcpSocketClientWithUsers.Add(tcp);
 
 
-            }
-            catch (Exception ex)
+            GetIPInfoCommand = new DelegateCommand(async () =>
             {
-                Debug.WriteLine($"{ex}");
-            }
-            GetWifiInfoCommand = new DelegateCommand(async () =>
-            {
-                await GetWifiInfo();
+                await GetIPWIFIInfo();
             });
 
             StartCommand = new DelegateCommand(async () =>
@@ -111,6 +122,43 @@ namespace TestApp.ViewModels
             {
                 Response();
             });
+        }
+
+        public async Task GetIPWIFIInfo()
+        {
+            await GetIPInfo();
+            await GetWifiInfo();
+        }
+
+        public async Task GetIPInfo()
+        {
+            try
+            {
+                IPInfo = "";
+                //IPInfo += $"Real IP: \n";
+                //// 真實IP
+                //string pubIp = new System.Net.WebClient().DownloadString("https://api.ipify.org");
+                //   IPInfo += $"{pubIp} \n";
+
+                IPInfo += $"DNS IP: \n";
+                foreach (IPAddress adress in Dns.GetHostAddresses(Dns.GetHostName()))
+                {
+                    if (!string.IsNullOrWhiteSpace(adress.ToString()))
+                    {
+                        var _ip = $"{adress.MapToIPv4()}";
+                        if (_ip.Contains("192"))
+                        {
+                            IPInfo += $"{adress.MapToIPv4()}\n";
+                        }
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{ex}");
+            }
         }
 
         public async Task GetWifiInfo()
@@ -157,16 +205,19 @@ namespace TestApp.ViewModels
                    {
                        var client = args.SocketClient;
 
-                       Device.BeginInvokeOnMainThread(() => _clients.Add(client));
+                       Device.BeginInvokeOnMainThread(() => _tcpClients.Add(client));
 
                        Task.Factory.StartNew(() =>
                        {
                            foreach (var msg in client.ReadStrings(_canceller.Token))
                            {
                                ReceiveMessage += $"{msg.Text} {msg.DetailText} \n";
+                               ReceiveMessageList.Add(msg);
+
+                               Device.BeginInvokeOnMainThread(() => AddNewTCPUser(client, msg));
                            }
 
-                           Device.BeginInvokeOnMainThread(() => _clients.Remove(client));
+                           Device.BeginInvokeOnMainThread(() => _tcpClients.Remove(client));
                        }, TaskCreationOptions.LongRunning);
                    };
 
@@ -202,13 +253,53 @@ namespace TestApp.ViewModels
         // 回傳
         public async void Response()
         {
-            if (_clients.Any())
+            try
             {
-                var sendTasks = _clients.Select(c => SocketExtensions.WriteStringAsync(c, ResponseMessage)).ToList();
-                await Task.WhenAll(sendTasks);
+                if (_tcpClients.Any())
+                {
+                    var msg = new TCPMessage();
+                    msg.Text = ResponseMessage;
+                    msg.DeviceName = $"{DeviceInfo.Manufacturer}/{DeviceInfo.Name}";
+
+                    if (PickerSelectedIndex == 0)
+                    {
+                        var sendTasks = _tcpClients.Select(c => SocketExtensions.WriteStringAsync(c, msg)).ToList();
+                        await Task.WhenAll(sendTasks);
+                    }
+                    else
+                    {
+                        var _client = TcpSocketClientWithUsers[PickerSelectedIndex];
+                        var sendTasks = SocketExtensions.WriteStringAsync(_client.tcpSocketClient, msg);
+                        await Task.WhenAll(sendTasks);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
             }
         }
 
+        /// <summary>
+        /// 下拉選單加入回傳對象
+        /// </summary>
+        /// <param name="tcpSocketClient"></param>
+        /// <param name="msg"></param>
+        public void AddNewTCPUser(ITcpSocketClient tcpSocketClient, TCPMessage msg)
+        {
+
+            if (TcpSocketClientWithUsers.Where(o => o.DeviceName == msg.DeviceName && o.IPAddress == msg.IPAddress).Any())
+            {
+                return;
+            }
+
+            var tcp = new TcpSocketClientWithUser();
+            tcp.tcpSocketClient = tcpSocketClient;
+            tcp.DeviceName = msg.DeviceName;
+            tcp.IPAddress = msg.IPAddress;
+            TcpSocketClientWithUsers.Add(tcp);
+
+        }
 
         private string _hostButtonText;
         private string _receiveMessage;

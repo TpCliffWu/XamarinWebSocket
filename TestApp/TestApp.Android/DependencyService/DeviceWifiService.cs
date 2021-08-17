@@ -20,18 +20,8 @@ using Xamarin.Forms;
 [assembly: Dependency(typeof(DeviceWifiService))]
 namespace TestApp.Droid.DependencyService
 {
-    public class DeviceWifiService : WifiManager.LocalOnlyHotspotCallback, IDeviceWifiService
+    public class DeviceWifiService : IDeviceWifiService
     {
-
-        private MainActivity mainActivity;
-
-
-        public DeviceWifiService(Activity _activity)
-        {
-            if (_activity.GetType() == typeof(MainActivity))
-                mainActivity = (MainActivity)_activity;
-        }
-
         public string GetSSID()
         {
 
