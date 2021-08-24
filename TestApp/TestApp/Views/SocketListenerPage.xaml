@@ -4,32 +4,39 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:prism="http://prismlibrary.com"
+    xmlns:zx="clr-namespace:ZXing.Net.Mobile.Forms;assembly=ZXing.Net.Mobile.Forms"
+    xmlns:zxcm="clr-namespace:ZXing.Common;assembly=zxing.portable"
     Title="Listener"
     prism:ViewModelLocator.AutowireViewModel="True">
     <!--  接收訊息  -->
     <ScrollView>
         <StackLayout Padding="10,30,10,0">
 
-            <Label HorizontalOptions="Center" Text="Server" />
+            <Label
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Text="Server" />
             <!--  重新整理IP資訊  -->
-            <Button
+            <!--<Button
                 BackgroundColor="Blue"
                 Command="{Binding GetIPInfoCommand}"
                 HorizontalOptions="Start"
-                Text="WIFI INFO ♻"
+                Text="WIFI INFO"
                 TextColor="White" />
 
+            -->
             <!--  IP資訊  -->
             <Label HorizontalOptions="StartAndExpand" Text="{Binding IPInfo}" />
 
+
             <!--  WIFI資訊  -->
             <Label HorizontalOptions="StartAndExpand" Text="{Binding WifiInfo}" />
-
-
-
-
-
-
+            <zx:ZXingBarcodeImageView
+                x:Name="qrcode_image"
+                BarcodeFormat="QR_CODE"
+                BarcodeValue="{Binding WifiInfo}"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand" />
 
 
             <!--  開啟/關閉站台  -->

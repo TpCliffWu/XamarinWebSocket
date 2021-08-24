@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace TestApp
 {
-    public interface IDeviceWifiService
+    public interface IHotspotService
     {
-        Task<List<string>> GetSSID();
+        Task<NetworkModel> HotspotSetup();
 
-        string WifiConnect(NetworkModel network);
+        void HotspotClose();
     }
 }

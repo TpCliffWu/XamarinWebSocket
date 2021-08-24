@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TestApp.QRCodeScanPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:app="clr-namespace:TestApp;assembly=TestApp"
+    xmlns:gv="clr-namespace:GoogleVisionBarCodeScanner;assembly=BarcodeScanner.XF"
+    xmlns:prism="http://prismlibrary.com"
+    Title="Scan QRCode"
+    prism:ViewModelLocator.AutowireViewModel="True">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <app:CameranDetectedEventArgsConverter x:Key="cameranDetectedEventArgsConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <!--
+        VirbationOnDetected: Indicate the device will vibrate or not when detected barcode, default is True
+        DefaultTorchOn: Indicate the torch will on or not when the view appear, default is False
+        AutoStartScanning : Indicate whether the device will start scanning after it is opened, default is True
+        RequestedFPS: Affect Android only, leave it if you want a default value (https://developers.google.com/android/reference/com/google/android/gms/vision/CameraSource.Builder.html#public-camerasource.builder-setrequestedfps-float-fps)
+        ScanInterval: Scan interval for iOS, default is 500ms and the minimum is 100ms, please be reminded that double scanning may be occurred if it is too small
+    -->
+    <ContentPage.Content>
+        <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <gv:CameraView
+                AutoStartScanning="True"
+                DefaultTorchOn="False"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand"
+                VibrationOnDetected="True">
+                <gv:CameraView.Behaviors>
+                    <prism:EventToCommandBehavior
+                        Command="{Binding CameraViewOnDetectedCommand}"
+                        EventArgsConverter="{StaticResource cameranDetectedEventArgsConverter}"
+                        EventName="OnDetected" />
+                </gv:CameraView.Behaviors>
+            </gv:CameraView>
+        </ScrollView>
+    </ContentPage.Content>
+
+</ContentPage>

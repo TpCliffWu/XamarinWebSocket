@@ -8,22 +8,42 @@
     prism:ViewModelLocator.AutowireViewModel="True">
     <ScrollView>
         <StackLayout Padding="10,30,10,0">
-            <Label HorizontalOptions="Center" Text="Client" />
-            <Button
+            <Label
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Text="Client" />
+            <!--<Button
                 BackgroundColor="Blue"
                 Command="{Binding GetIPInfoCommand}"
                 HorizontalOptions="Start"
                 Text="WIFI INFO ♻"
-                TextColor="White" />
+                TextColor="White" />-->
 
+            <Button Command="{Binding ScanCommand}" Text="Scan" />
 
             <!--  WIFI資訊  -->
             <Label HorizontalOptions="StartAndExpand" Text="{Binding WifiInfo}" />
+            <Label HorizontalOptions="StartAndExpand" Text="{Binding ConnectText}" />
+
+            <Button
+                BackgroundColor="Blue"
+                Command="{Binding WiFiConnectCommand}"
+                HorizontalOptions="Start"
+                Text="WIFI Connect"
+                TextColor="White" />
 
             <!--  發送訊息  -->
-            <Label HorizontalOptions="Start" Text="Send Message To IP" />
+            <!--<Label HorizontalOptions="Start" Text="Send Message To IP" />-->
 
-            <Entry HorizontalOptions="FillAndExpand" Text="{Binding ConnectIP}" />
+            <!--<Entry HorizontalOptions="FillAndExpand" Text="{Binding ConnectIP}" />-->
+
+            <Picker
+                Title="Select Connect IP"
+                HorizontalOptions="FillAndExpand"
+                ItemDisplayBinding="{Binding .}"
+                ItemsSource="{Binding ConnectIPAddresses}"
+                SelectedIndex="{Binding PickerSelectedIndex}" />
+
             <StackLayout Orientation="Horizontal">
                 <Entry
                     HorizontalOptions="FillAndExpand"

@@ -15,7 +15,13 @@ namespace TestApp.Droid
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
 
+            ThisAndroid.CurrentContext = this;
+
             base.OnCreate(savedInstanceState);
+            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            GoogleVisionBarCodeScanner.Droid.RendererInitializer.Init();
+
+
 
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App(new AndroidInitializer()));
@@ -35,6 +41,11 @@ namespace TestApp.Droid
         {
             // Register any platform specific implementations
         }
+    }
+
+    public class ThisAndroid
+    {
+        public static Activity CurrentContext { get; set; }
     }
 }
 

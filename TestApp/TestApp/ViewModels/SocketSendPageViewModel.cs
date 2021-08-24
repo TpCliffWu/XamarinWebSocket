@@ -12,7 +12,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TestApp.Interface;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -28,6 +27,10 @@ namespace TestApp.ViewModels
         public DelegateCommand ConnectCommand { get; set; }
 
         public DelegateCommand GetIPInfoCommand { get; set; }
+
+        public DelegateCommand ScanCommand { get; set; }
+
+        public DelegateCommand WiFiConnectCommand { get; set; }
 
 
         public TcpSocketClient _client;
@@ -59,6 +62,26 @@ namespace TestApp.ViewModels
             set { SetProperty(ref connectIP, value); }
         }
 
+        /// <summary>
+        ///  連線的IP
+        /// </summary>
+        private List<string> _connectIPAddresses = new List<string>();
+        public List<string> ConnectIPAddresses
+        {
+            get { return _connectIPAddresses; }
+            set { SetProperty(ref _connectIPAddresses, value); }
+        }
+
+        /// <summary>
+        /// 選擇的連線picker index
+        /// </summary>
+        private int _pickerSelectedIndex = 0;
+        public int PickerSelectedIndex
+        {
+            get { return _pickerSelectedIndex; }
+            set { SetProperty(ref _pickerSelectedIndex, value); }
+        }
+
         private string _responseMessage;
         public string ResponseMessage
         {
@@ -84,7 +107,6 @@ namespace TestApp.ViewModels
         {
             _dialogService = dialogService;
             ConnectIP = "192.168.100.147"; // 預設值 
-            ConnectText = "Connect";
             Connected = false;
 
             ConnectCommand = new DelegateCommand(async () =>
@@ -99,7 +121,7 @@ namespace TestApp.ViewModels
                 {
                     Connect();
                 }
-           
+
                 SendMsg();
             });
 
@@ -111,7 +133,22 @@ namespace TestApp.ViewModels
             {
                 await GetWifiInfo();
             });
+            ScanCommand = new DelegateCommand(async () =>
+            {
+                if (await GoogleVisionBarCodeScanner.Methods.AskForRequiredPermission())
+                {
+                    await NavigationService.NavigateAsync("QRCodeScanPage");
+                }
+                else
+                {
+                    await _dialogService.DisplayActionSheetAsync("", $"You have to provide Camera permission", "OK");
+                }
+            });
 
+            WiFiConnectCommand = new DelegateCommand(async () =>
+            {
+                ConnectWiFi();
+            });
         }
 
         public ClientWebSocket webSocketClient;
@@ -181,11 +218,31 @@ namespace TestApp.ViewModels
             }
         }
 
+        /// <summary>
+        /// 取得頁面切換的參數
+        /// </summary>
+        /// <param name="parameters"></param>
+        public override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            base.OnNavigatedTo(parameters);
+            WifiInfo = parameters.GetValue<string>("QRCode");
+        }
 
+        public void ConnectWiFi()
+        {
+            if (!string.IsNullOrWhiteSpace(WifiInfo))
+            {
+                var network = JsonConvert.DeserializeObject<NetworkModel>(WifiInfo);
+                var ssid = DependencyService.Get<IDeviceWifiService>().WifiConnect(network);
+                if (!string.IsNullOrWhiteSpace(ssid))
+                {
+                    ConnectText = $"Connect To {ssid}";
 
+                    ConnectIPAddresses = network.NetworkIPAddresses.Select(o => o.IPAddress).ToList();
+                }
+            }
+        }
 
-
- 
 
         public async void Connect()
         {
@@ -193,7 +250,7 @@ namespace TestApp.ViewModels
             {
                 _client = new TcpSocketClient();
 
-                await _client.ConnectAsync(ConnectIP, ListenPort);
+                await _client.ConnectAsync(ConnectIPAddresses[PickerSelectedIndex], ListenPort);
                 _cancelTokenSource = new CancellationTokenSource();
 
                 Connected = true;
@@ -283,9 +340,20 @@ namespace TestApp.ViewModels
 
                 if (status == PermissionStatus.Granted)
                 {
+
+
                     WifiInfo = "";
                     WifiInfo += $"WIFI SSID: \n";
-                    WifiInfo += DependencyService.Get<IDeviceWifiService>().GetSSID();
+
+                    var list = await DependencyService.Get<IDeviceWifiService>().GetSSID();
+
+                    list.ForEach(wifissid =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(wifissid))
+                        {
+                            WifiInfo += $"{wifissid}\n";
+                        }
+                    });
                 }
             }
             catch (Exception ex)
