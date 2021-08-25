@@ -119,11 +119,14 @@ namespace TestApp.ViewModels
             StartCommand = new DelegateCommand(async () =>
             {
                 // 開啟WIFI分享
-                await SetupHotspot();
+                if (await LocationPermission())
+                {
+                    await SetupHotspot();
 
-                await GetIPInfo();
-                // 開啟站台
-                CreateListener();
+                    await GetIPInfo();
+                    // 開啟站台
+                    CreateListener();
+                }
             });
 
             ResponseCommand = new DelegateCommand(async () =>
@@ -225,6 +228,15 @@ namespace TestApp.ViewModels
         //}
 
 
+        public async Task<bool> LocationPermission()
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            if (status != PermissionStatus.Granted)
+            {
+                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+            }
+            return status == PermissionStatus.Granted;
+        }
 
 
         /// <summary>
