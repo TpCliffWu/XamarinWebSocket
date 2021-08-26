@@ -9,7 +9,7 @@ namespace TestApp
         /// <summary>
         /// 無線基地台名稱
         /// </summary>
-        public string NetworkName { get; set; }
+        public string NetworkSSID { get; set; }
 
         /// <summary>
         /// 無線基地台密碼

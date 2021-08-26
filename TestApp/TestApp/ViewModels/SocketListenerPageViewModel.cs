@@ -104,7 +104,7 @@ namespace TestApp.ViewModels
 
             HostButtonText = "Start Listener";
             // 取得host ip
-            GetIPInfo();
+            GetIPWIFIInfo();
 
             var tcp = new TcpSocketClientWithUser();
             tcp.DeviceName = "ALL";
@@ -118,14 +118,16 @@ namespace TestApp.ViewModels
 
             StartCommand = new DelegateCommand(async () =>
             {
-                // 開啟WIFI分享
+
                 if (await LocationPermission())
                 {
-                    await SetupHotspot();
-
-                    await GetIPInfo();
-                    // 開啟站台
-                    CreateListener();
+                    // 開啟WIFI分享
+                    if (await SetupHotspot())
+                    {
+                        await GetIPWIFIInfo();
+                        // 開啟站台
+                        CreateListener();
+                    }
                 }
             });
 
@@ -137,95 +139,8 @@ namespace TestApp.ViewModels
 
         public async Task GetIPWIFIInfo()
         {
-            //await GetWifiInfo();
-            await GetIPInfo();
+            await base.NetworkStatusUpdate();
         }
-
-        public async Task GetIPInfo()
-        {
-            try
-            {
-                IPInfo = "";
-                //IPInfo += $"Real IP: \n";
-                //// 真實IP
-                //string pubIp = new System.Net.WebClient().DownloadString("https://api.ipify.org");
-                //   IPInfo += $"{pubIp} \n";
-
-                IPInfo += $"DNS IP: \n";
-                //foreach (IPAddress adress in Dns.GetHostAddresses(Dns.GetHostName()))
-                //{
-                //    if (!string.IsNullOrWhiteSpace(adress.ToString()))
-                //    {
-                //        var _ip = $"{adress.MapToIPv4()}";
-
-                //            IPInfo += $"{adress.MapToIPv4()}\n";
-
-                //    }
-                //}
-                foreach (var netInterface in NetworkInterface.GetAllNetworkInterfaces())
-                {
-                    if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
-                        netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-                    {
-                        foreach (var addrInfo in netInterface.GetIPProperties().UnicastAddresses)
-                        {
-                            if (addrInfo.Address.AddressFamily == AddressFamily.InterNetwork)
-                            {
-                                var ipAddress = addrInfo.Address;
-
-                                // use ipAddress as needed ...
-                                IPInfo += $"{ipAddress.MapToIPv4()}\n";
-                            }
-                        }
-                    }
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{ex}");
-            }
-        }
-
-        //public async Task GetWifiInfo()
-        //{
-
-        //    // WIFI 資訊
-        //    // 權限
-        //    try
-        //    {
-
-        //        var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-        //        if (status != PermissionStatus.Granted)
-        //        {
-        //            status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-        //        }
-
-        //        if (status != PermissionStatus.Granted)
-        //        {
-        //            return;
-        //        }
-
-
-        //        WifiInfo = "";
-        //        WifiInfo += $"WIFI SSID: \n";
-
-        //        var list = await DependencyService.Get<IDeviceWifiService>().GetSSID();
-
-        //        list.ForEach(wifissid =>
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(wifissid))
-        //            {
-        //                WifiInfo += $"{wifissid}\n";
-        //            }
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
-        //    }
-        //}
 
 
         public async Task<bool> LocationPermission()
@@ -350,10 +265,32 @@ namespace TestApp.ViewModels
             TcpSocketClientWithUsers.Add(tcp);
         }
 
-        public async Task SetupHotspot()
+        /// <summary>
+        /// 建立無線基地台
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> SetupHotspot()
         {
-            var network = await DependencyService.Get<IHotspotService>().HotspotSetup();
-            WifiInfo = JsonConvert.SerializeObject(network);
+            if (!Listening)
+            {
+                try
+                {
+                    var network = await DependencyService.Get<IHotspotService>().HotspotSetup();
+                    WifiInfo = JsonConvert.SerializeObject(network);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
+                    return false;
+                }
+            }
+            else
+            {
+                DependencyService.Get<IHotspotService>().HotspotClose();
+                WifiInfo = "";
+                return true;
+            }
         }
 
         private string _hostButtonText;

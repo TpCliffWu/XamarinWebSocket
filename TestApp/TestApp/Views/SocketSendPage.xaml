@@ -12,18 +12,19 @@
                 FontAttributes="Bold"
                 HorizontalOptions="Center"
                 Text="Client" />
-            <!--<Button
+            <Button
                 BackgroundColor="Blue"
                 Command="{Binding GetIPInfoCommand}"
                 HorizontalOptions="Start"
-                Text="WIFI INFO ♻"
-                TextColor="White" />-->
+                Text="WIFI INFO"
+                TextColor="White" />
+            <Label HorizontalOptions="StartAndExpand" Text="{Binding NetworkStatus}" />
 
             <Button Command="{Binding ScanCommand}" Text="Scan" />
 
             <!--  WIFI資訊  -->
-            <Label HorizontalOptions="StartAndExpand" Text="{Binding WifiInfo}" />
-            <Label HorizontalOptions="StartAndExpand" Text="{Binding ConnectText}" />
+            <Label HorizontalOptions="Center" Text="{Binding WifiInfo}" />
+
 
             <Button
                 BackgroundColor="Blue"

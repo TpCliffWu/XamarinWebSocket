@@ -17,26 +17,26 @@
                 HorizontalOptions="Center"
                 Text="Server" />
             <!--  重新整理IP資訊  -->
-            <!--<Button
+            <Button
                 BackgroundColor="Blue"
                 Command="{Binding GetIPInfoCommand}"
                 HorizontalOptions="Start"
                 Text="WIFI INFO"
                 TextColor="White" />
 
-            -->
-            <!--  IP資訊  -->
-            <Label HorizontalOptions="StartAndExpand" Text="{Binding IPInfo}" />
+
+            <!--  IP資訊 WIFI資訊  -->
+            <Label Text="{Binding NetworkStatus}" />
 
 
-            <!--  WIFI資訊  -->
-            <Label HorizontalOptions="StartAndExpand" Text="{Binding WifiInfo}" />
             <zx:ZXingBarcodeImageView
                 x:Name="qrcode_image"
                 BarcodeFormat="QR_CODE"
                 BarcodeValue="{Binding WifiInfo}"
+                HeightRequest="200"
                 HorizontalOptions="FillAndExpand"
-                VerticalOptions="FillAndExpand" />
+                VerticalOptions="FillAndExpand"
+                WidthRequest="200" />
 
 
             <!--  開啟/關閉站台  -->

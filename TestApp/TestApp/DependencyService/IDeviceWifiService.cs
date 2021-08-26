@@ -9,6 +9,6 @@ namespace TestApp
     {
         Task<List<string>> GetSSID();
 
-        string WifiConnect(NetworkModel network);
+        void WifiConnect(NetworkModel network);
     }
 }

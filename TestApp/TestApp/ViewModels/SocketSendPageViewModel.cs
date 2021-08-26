@@ -96,6 +96,13 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _connectText, value); }
         }
 
+        private NetworkModel _qrCodeScanResult;
+        public NetworkModel QRCodeScanResult
+        {
+            get { return _qrCodeScanResult; }
+            set { SetProperty(ref _qrCodeScanResult, value); }
+        }
+
         private ObservableCollection<TCPMessage> _receiveMessageList = new ObservableCollection<TCPMessage>();
         public ObservableCollection<TCPMessage> ReceiveMessageList
         {
@@ -106,7 +113,6 @@ namespace TestApp.ViewModels
         public SocketSendPageViewModel(INavigationService navigationService, IPageDialogService dialogService) : base(navigationService)
         {
             _dialogService = dialogService;
-            ConnectIP = "192.168.100.147"; // 預設值 
             Connected = false;
 
             ConnectCommand = new DelegateCommand(async () =>
@@ -131,7 +137,7 @@ namespace TestApp.ViewModels
             });
             GetIPInfoCommand = new DelegateCommand(async () =>
             {
-                await GetWifiInfo();
+                await base.NetworkStatusUpdate();
             });
             ScanCommand = new DelegateCommand(async () =>
             {
@@ -147,7 +153,7 @@ namespace TestApp.ViewModels
 
             WiFiConnectCommand = new DelegateCommand(async () =>
             {
-                ConnectWiFi();
+                await ConnectWiFi();
             });
         }
 
@@ -219,28 +225,37 @@ namespace TestApp.ViewModels
         }
 
         /// <summary>
-        /// 取得頁面切換的參數
+        /// 取得掃描結果
         /// </summary>
         /// <param name="parameters"></param>
-        public override void OnNavigatedTo(INavigationParameters parameters)
+        public override async void OnNavigatedTo(INavigationParameters parameters)
         {
             base.OnNavigatedTo(parameters);
-            WifiInfo = parameters.GetValue<string>("QRCode");
+            var parameter = parameters.GetValue<string>("QRCode");
+            // 掃描結果ip帶入選單中
+            if (!string.IsNullOrWhiteSpace(parameter))
+            {
+                var network = JsonConvert.DeserializeObject<NetworkModel>(parameter);
+
+                QRCodeScanResult = network;
+
+                WifiInfo = $"Server Wi-Fi Name :{network.NetworkSSID} \n";
+                WifiInfo += $"Server Wi-Fi 密碼 :{network.NetworkPassword} \n";
+
+                await Clipboard.SetTextAsync(network.NetworkPassword);
+
+                ConnectIPAddresses = network.NetworkIPAddresses.Select(o => o.IPAddress).ToList();
+            }
         }
 
-        public void ConnectWiFi()
+        /// <summary>
+        /// 連結Wi-Fi
+        /// </summary>
+        public async Task ConnectWiFi()
         {
-            if (!string.IsNullOrWhiteSpace(WifiInfo))
-            {
-                var network = JsonConvert.DeserializeObject<NetworkModel>(WifiInfo);
-                var ssid = DependencyService.Get<IDeviceWifiService>().WifiConnect(network);
-                if (!string.IsNullOrWhiteSpace(ssid))
-                {
-                    ConnectText = $"Connect To {ssid}";
+            DependencyService.Get<IDeviceWifiService>().WifiConnect(QRCodeScanResult);
 
-                    ConnectIPAddresses = network.NetworkIPAddresses.Select(o => o.IPAddress).ToList();
-                }
-            }
+            await base.NetworkStatusUpdate();
         }
 
 
@@ -249,6 +264,7 @@ namespace TestApp.ViewModels
             try
             {
                 _client = new TcpSocketClient();
+
 
                 await _client.ConnectAsync(ConnectIPAddresses[PickerSelectedIndex], ListenPort);
                 _cancelTokenSource = new CancellationTokenSource();
@@ -279,7 +295,7 @@ namespace TestApp.ViewModels
             {
                 _client = new TcpSocketClient();
 
-                await _client.ConnectAsync(ConnectIP, ListenPort);
+                await _client.ConnectAsync(ConnectIPAddresses[PickerSelectedIndex], ListenPort);
                 _cancelTokenSource = new CancellationTokenSource();
 
                 // 傳送訊息
@@ -323,43 +339,6 @@ namespace TestApp.ViewModels
         {
             get { return _wifiInfo; }
             set { SetProperty(ref _wifiInfo, value); }
-        }
-
-        public async Task GetWifiInfo()
-        {
-
-            // WIFI 資訊
-            // 權限
-            try
-            {
-                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-                if (status != PermissionStatus.Granted)
-                {
-                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-                }
-
-                if (status == PermissionStatus.Granted)
-                {
-
-
-                    WifiInfo = "";
-                    WifiInfo += $"WIFI SSID: \n";
-
-                    var list = await DependencyService.Get<IDeviceWifiService>().GetSSID();
-
-                    list.ForEach(wifissid =>
-                    {
-                        if (!string.IsNullOrWhiteSpace(wifissid))
-                        {
-                            WifiInfo += $"{wifissid}\n";
-                        }
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.DisplayActionSheetAsync("", $"{ex}", "OK");
-            }
         }
     }
 }

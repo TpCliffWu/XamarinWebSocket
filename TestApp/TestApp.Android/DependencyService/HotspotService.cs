@@ -22,9 +22,9 @@ namespace TestApp.Droid
     {
         public void HotspotClose()
         {
-            if (WifiStatus.Reservation != null)
+            if (WiFiCenter.Reservation != null)
             {
-                WifiStatus.Reservation.Close();
+                WiFiCenter.Reservation.Close();
             }
         }
 
@@ -32,25 +32,19 @@ namespace TestApp.Droid
         {
             WifiManager wifiManager = (WifiManager)(ThisAndroid.CurrentContext.GetSystemService(Context.WifiService));
 
-            if (WifiStatus.Reservation == null)
+            if (WiFiCenter.Reservation == null)
             {
                 wifiManager.StartLocalOnlyHotspot(new CustomHotspotCallback(), new Handler());
             }
 
-            await Task.Delay(1000);
+            await Task.Delay(3000);
 
-            var config = WifiStatus.Reservation.WifiConfiguration;
+            var config = WiFiCenter.Reservation.WifiConfiguration;
 
             var network = new NetworkModel();
-            network.NetworkName = config.Ssid;
+            network.NetworkSSID = config.Ssid;
             network.NetworkPassword = config.PreSharedKey;
-
             network.NetworkIPAddresses = new List<NetworkIPAddress>();
-            //if (wifiManager != null)
-            //{
-            //    network.NetworkIPAddress = Formatter.FormatIpAddress(wifiManager.ConnectionInfo.IpAddress);
-            //}
-
 
             var enumNetworkInterfaces = NetworkInterface.NetworkInterfaces;
             while (enumNetworkInterfaces.HasMoreElements)
@@ -74,11 +68,6 @@ namespace TestApp.Droid
         }
     }
 
-    public static class WifiStatus
-    {
-        public static WifiManager.LocalOnlyHotspotReservation Reservation;
-    }
-
 
 
     public class CustomHotspotCallback : WifiManager.LocalOnlyHotspotCallback
@@ -86,13 +75,13 @@ namespace TestApp.Droid
         public override void OnStarted(WifiManager.LocalOnlyHotspotReservation reservation)
         {
             base.OnStarted(reservation);
-            WifiStatus.Reservation = reservation;
+            WiFiCenter.Reservation = reservation;
         }
 
         public override void OnStopped()
         {
             base.OnStopped();
-            WifiStatus.Reservation = null;
+            WiFiCenter.Reservation = null;
         }
 
         public override void OnFailed([GeneratedEnum] LocalOnlyHotspotCallbackErrorCode reason)
