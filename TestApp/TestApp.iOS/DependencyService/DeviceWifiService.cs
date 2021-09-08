@@ -1,11 +1,12 @@
 ﻿
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using CoreLocation;
 using Foundation;
 using NetworkExtension;
 using SystemConfiguration;
-using TestApp.Interface;
 using TestApp.iOS;
 using UIKit;
 using Xamarin.Forms;
@@ -19,7 +20,8 @@ namespace TestApp.iOS
         private void GetLocationConsent()
         {
             var manager = new CLLocationManager();
-            manager.AuthorizationChanged += (sender, args) => {
+            manager.AuthorizationChanged += (sender, args) =>
+            {
 
                 Console.WriteLine("Authorization changed to: {0}", args.Status);
             };
@@ -35,17 +37,19 @@ namespace TestApp.iOS
 
         }
 
-        public string GetSSID()
+        public async Task<List<string>> GetSSID()
         {
-            try {
+            var list = new List<string>();
+            try
+            {
 
-               // GetLocationConsent();
+                // GetLocationConsent();
 
                 string[] supportedInterfaces;
                 StatusCode status;
                 if ((status = CaptiveNetwork.TryGetSupportedInterfaces(out supportedInterfaces)) != StatusCode.OK)
                 {
-                    return "NO INFO";
+                    return list;
                 }
                 else
                 {
@@ -60,18 +64,23 @@ namespace TestApp.iOS
 
                         if (info != null)
                         {
-                            return info[CaptiveNetwork.NetworkInfoKeySSID].ToString();
+                            list.Add(info[CaptiveNetwork.NetworkInfoKeySSID].ToString());
                         }
                     }
                 }
-                return "NO INFO";
+                return list;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"{ex}");
-                return "INFO ERROR";
+                return list;
             }
 
+        }
+
+        public void WifiConnect(NetworkModel network)
+        {
+            throw new NotImplementedException();
         }
     }
 }

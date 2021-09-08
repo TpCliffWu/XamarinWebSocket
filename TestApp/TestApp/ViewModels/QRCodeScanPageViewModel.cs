@@ -11,6 +11,9 @@ using System.Windows.Input;
 
 namespace TestApp.ViewModels
 {
+    /// <summary>
+    /// 掃描連線資訊
+    /// </summary>
     public class QRCodeScanPageViewModel : ViewModelBase
     {
         public IPageDialogService _dialogService;
@@ -28,7 +31,7 @@ namespace TestApp.ViewModels
                 {
                     try
                     {
-                  
+                        // 掃描結果
                         var isValid = JsonConvert.DeserializeObject<NetworkModel>(qrcode.DisplayValue);
                         var navParameters = new NavigationParameters { { "QRCode", qrcode.DisplayValue } };
                         await NavigationService.GoBackAsync(navParameters);

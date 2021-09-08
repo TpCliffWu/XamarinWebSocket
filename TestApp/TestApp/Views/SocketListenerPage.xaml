@@ -29,10 +29,12 @@
             <Label Text="{Binding NetworkStatus}" />
 
 
+            <Label Text="{Binding QRCodeInfo}" />
+
             <zx:ZXingBarcodeImageView
                 x:Name="qrcode_image"
                 BarcodeFormat="QR_CODE"
-                BarcodeValue="{Binding WifiInfo}"
+                BarcodeValue="{Binding QRCodeInfo}"
                 HeightRequest="200"
                 HorizontalOptions="FillAndExpand"
                 VerticalOptions="FillAndExpand"

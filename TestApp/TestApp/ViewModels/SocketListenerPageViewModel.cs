@@ -41,11 +41,7 @@ namespace TestApp.ViewModels
             set { SetProperty(ref _hostButtonText, value); }
         }
 
-        public string IPInfo
-        {
-            get { return _iPInfo; }
-            set { SetProperty(ref _iPInfo, value); }
-        }
+
         public string ReceiveMessage
         {
             get { return _receiveMessage; }
@@ -67,11 +63,11 @@ namespace TestApp.ViewModels
         }
 
 
-        private string _wifiInfo = "";
-        public string WifiInfo
+        private string _qrCodeInfo = "";
+        public string QRCodeInfo
         {
-            get { return _wifiInfo; }
-            set { SetProperty(ref _wifiInfo, value); }
+            get { return _qrCodeInfo; }
+            set { SetProperty(ref _qrCodeInfo, value); }
         }
 
         private ObservableCollection<TCPMessage> _receiveMessageList = new ObservableCollection<TCPMessage>();
@@ -97,6 +93,8 @@ namespace TestApp.ViewModels
             get { return _pickerSelectedIndex; }
             set { SetProperty(ref _pickerSelectedIndex, value); }
         }
+
+ 
 
         public SocketListenerPageViewModel(INavigationService navigationService, IPageDialogService dialogService) : base(navigationService)
         {
@@ -276,7 +274,7 @@ namespace TestApp.ViewModels
                 try
                 {
                     var network = await DependencyService.Get<IHotspotService>().HotspotSetup();
-                    WifiInfo = JsonConvert.SerializeObject(network);
+                    QRCodeInfo = JsonConvert.SerializeObject(network);
                     return true;
                 }
                 catch (Exception ex)
@@ -288,13 +286,12 @@ namespace TestApp.ViewModels
             else
             {
                 DependencyService.Get<IHotspotService>().HotspotClose();
-                WifiInfo = "";
+                QRCodeInfo = "";
                 return true;
             }
         }
 
         private string _hostButtonText;
         private string _receiveMessage;
-        private string _iPInfo;
     }
 }
