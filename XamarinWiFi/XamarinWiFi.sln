@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamarinWiFi", "XamarinWiFi\XamarinWiFi.csproj", "{7933F357-9E8F-4F0E-B7EC-B1125F535FB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XamarinWiFi", "XamarinWiFi\XamarinWiFi.csproj", "{7933F357-9E8F-4F0E-B7EC-B1125F535FB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamarinWiFi.Android", "XamarinWiFi.Android\XamarinWiFi.Android.csproj", "{ABC91653-DE55-4033-9C6F-1251EB055A2C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamarinWiFi.iOS", "XamarinWiFi.iOS\XamarinWiFi.iOS.csproj", "{EFC5186E-6F4E-4BC1-8C6E-B49A7017F848}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Java-WebSocket", "Java-WebSocket\Java-WebSocket.csproj", "{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,30 +105,6 @@ Global
 		{EFC5186E-6F4E-4BC1-8C6E-B49A7017F848}.Release|iPhone.Build.0 = Release|iPhone
 		{EFC5186E-6F4E-4BC1-8C6E-B49A7017F848}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
 		{EFC5186E-6F4E-4BC1-8C6E-B49A7017F848}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Ad-Hoc|Any CPU.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Ad-Hoc|Any CPU.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Ad-Hoc|iPhone.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Ad-Hoc|iPhone.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Ad-Hoc|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.AppStore|Any CPU.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.AppStore|Any CPU.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.AppStore|iPhone.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.AppStore|iPhone.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.AppStore|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.AppStore|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Release|iPhone.Build.0 = Release|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{615A7FAC-A814-4F3E-AA76-8B071C0F60F5}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
