@@ -34,6 +34,12 @@ namespace XamarinWiFi.ViewModels
             get { return messages; }
             set { SetProperty(ref messages, value); }
         }
+        private string msg;
+        public string Msg
+        {
+            get { return msg; }
+            set { SetProperty(ref msg, value); }
+        }
 
         public DelegateCommand ConnectCommand { get; set; }
         public DelegateCommand SendCommand { get; set; }
@@ -72,8 +78,10 @@ namespace XamarinWiFi.ViewModels
 
                         try
                         {
-                            var msg = JsonConvert.DeserializeObject<Message>(serialisedMessae);
-                            Messages.Add(msg);
+                            //var msg = JsonConvert.DeserializeObject<Message>(serialisedMessae);
+                            //Messages.Add(msg);
+
+                            Msg += $"{serialisedMessae} \r\n";
                         }
                         catch (Exception ex)
                         {

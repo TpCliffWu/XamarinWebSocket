@@ -19,7 +19,8 @@
             Text="傳送訊息" />
 
 
-        <ListView ItemsSource="{Binding Messages}">
+        <Label Text="{Binding Msg}" />
+        <!--<ListView ItemsSource="{Binding Messages}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
@@ -31,7 +32,7 @@
 
                 </DataTemplate>
             </ListView.ItemTemplate>
-        </ListView>
+        </ListView>-->
 
 
     </StackLayout>
