@@ -12,7 +12,7 @@
     <RootNamespace>XamarinWiFi.Droid</RootNamespace>
     <AssemblyName>XamarinWiFi.Android</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkVersion>v10.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v11.0</TargetFrameworkVersion>
     <AndroidApplication>True</AndroidApplication>
     <AndroidUseIntermediateDesignerFile>true</AndroidUseIntermediateDesignerFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -107,6 +107,10 @@
     <AndroidResource Include="Resources\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Java-WebSocket\Java-WebSocket.csproj">
+      <Project>{615a7fac-a814-4f3e-aa76-8b071c0f60f5}</Project>
+      <Name>Java-WebSocket</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XamarinWiFi\XamarinWiFi.csproj">
       <Project>{A682884C-CB44-4A89-B752-27BB634E0ABE}</Project>
       <Name>XamarinWiFi</Name>

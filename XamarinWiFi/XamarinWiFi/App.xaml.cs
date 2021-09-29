@@ -28,6 +28,8 @@ namespace XamarinWiFi
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
+            containerRegistry.RegisterForNavigation<ServerPage, ServerPageViewModel>();
+            containerRegistry.RegisterForNavigation<ClientPage, ClientPageViewModel>();
         }
     }
 }

@@ -14,6 +14,20 @@ namespace XamarinWiFi.ViewModels
             : base(navigationService)
         {
             Title = "Main Page";
+
+            this.ToServerCommand = new DelegateCommand(async()=>
+            {
+                await NavigationService.NavigateAsync("ServerPage");
+            });
+
+            this.ToClientCommand = new DelegateCommand(async () =>
+            {
+                await NavigationService.NavigateAsync("ClientPage");
+            });
         }
+
+        public DelegateCommand ToServerCommand { get; set; }
+
+        public DelegateCommand ToClientCommand { get; set; }
     }
 }
