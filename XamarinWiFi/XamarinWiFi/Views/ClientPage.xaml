@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinWiFi.Views.ClientPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:prism="http://prismlibrary.com"
+    Title="客戶端"
+    prism:ViewModelLocator.AutowireViewModel="True">
+
+    <StackLayout>
+        <Button
+            Command="{Binding ConnectCommand}"
+            HorizontalOptions="Center"
+            Text="連線" />
+
+        <Button
+            Command="{Binding SendCommand}"
+            HorizontalOptions="Center"
+            Text="傳送訊息" />
+
+
+        <Label Text="{Binding Msg}" />
+        <!--<ListView ItemsSource="{Binding Messages}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="{Binding Text}" />
+                            <Label Text="{Binding MessagDateTime}" />
+                        </StackLayout>
+                    </ViewCell>
+
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>-->
+
+
+    </StackLayout>
+
+</ContentPage>

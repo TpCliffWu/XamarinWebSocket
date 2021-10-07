@@ -1,0 +1,18 @@
+﻿<metadata>
+  <!--
+  This sample removes the class: android.support.v4.content.AsyncTaskLoader.LoadTask:
+  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='AsyncTaskLoader.LoadTask']" />
+  
+  This sample removes the method: android.support.v4.content.CursorLoader.loadInBackground:
+  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='CursorLoader']/method[@name='loadInBackground']" />
+  -->
+
+
+	<attr path="/api/package[@name='org.java_websocket']/interface[@name='WebSocketListener']/method[@name='onWebsocketMessage' and count(parameter)=2 and parameter[1][@type='org.java_websocket.WebSocket'] and parameter[2][@type='java.nio.ByteBuffer']]" name="managedName">OnWebsocketMessageByteBuffer</attr>
+	<attr path="/api/package[@name='org.java_websocket.client']/class[@name='WebSocketClient']/method[@name='onWebsocketMessage' and count(parameter)=2 and parameter[1][@type='org.java_websocket.WebSocket'] and parameter[2][@type='java.nio.ByteBuffer']]" name="managedName">OnWebsocketMessageByteBuffer</attr>-->
+	<attr path="/api/package[@name='org.java_websocket.server']/class[@name='WebSocketServer']/method[@name='onWebsocketMessage' and count(parameter)=2 and parameter[1][@type='org.java_websocket.WebSocket'] and parameter[2][@type='java.nio.ByteBuffer']]" name="managedName">OnWebsocketMessageByteBuffer</attr>
+
+
+	<attr path="/api/package[@name='org.java_websocket.server']/class[@name='WebSocketServer']/method[@name='getConnections' and count(parameter)=0]"  name="visibility">protected</attr>
+
+</metadata>
