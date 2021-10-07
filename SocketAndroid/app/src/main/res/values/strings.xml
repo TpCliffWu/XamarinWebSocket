@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">SocketAndroid</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Socket Sample</string>
+    <string name="second_fragment_label">Server</string>
+    <string name="third_fragment_label">Client</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string name="start_listen">Start Listen</string>
+    <string name="stop_listen">Stop Listen</string>
+</resources>
